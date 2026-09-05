@@ -165,8 +165,18 @@ const getTodo = async (req, res) => {
 
         const todo = user.todos.id(req.params.todoId);
 
-        
+        if (!todo) {
+            return res.status(404).json({
+                message: "Todo not found"
+            });
+        }
 
+        res.status(200).json(todo); 
+    }
+    catch (error) {
+        res.status(400).json({
+            message: "Invalid user ID"
+        });
     }
 }
 
