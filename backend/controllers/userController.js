@@ -65,7 +65,8 @@ const updateUser = async (req, res) => {
         res.status(200).json({
             message: "User updated",
             user
-        })
+        });
+
     } catch (error) {
         res.status(404).json({
             message: "Invalid user ID"
@@ -86,7 +87,8 @@ const deleteUser = async (req, res) => {
         res.status(200).json({
             message: "User deleted",
             user
-        })
+        });
+
     } catch (error) {
         res.status(404).json({
             message: "Invalid user ID"
@@ -155,7 +157,7 @@ const getTodos = async (req, res) => {
 
 const getTodo = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
+        const user = await User.findById(req.params.userId);
 
         if (!user) {
             return res.status(404).json({
@@ -171,11 +173,47 @@ const getTodo = async (req, res) => {
             });
         }
 
-        res.status(200).json(todo); 
-    }
-    catch (error) {
+        res.status(200).json(todo);
+
+    }   catch (error) {
         res.status(400).json({
             message: "Invalid user ID"
+        });
+    }
+};
+
+const updateTodo = async (req, res) => {
+    try {
+        const {title, completed} = req.body;
+
+        const user = await User.findById(req.params.userId);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        const todo = user.todos.id(req.params.todoId);
+
+        if (!todo) {
+            return res.status(404).json({
+                message: "Todo not found"
+            });
+        }
+
+        todo.title = title;
+        todo.completed = completed;
+
+        await user.save();
+
+        res.status(200).json({
+            message: "Todo updated",
+            todo
+        });
+    } catch (error) {
+        res.status(400).json({
+            message: "Invalid ID"
         });
     }
 }
@@ -187,5 +225,7 @@ module.exports = {
     updateUser,
     patchUser,
     deleteUser,
-    getTodos
+    getTodos,
+    getTodo,
+    updateTodo
 };

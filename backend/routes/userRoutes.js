@@ -7,7 +7,9 @@ const {
     updateUser,
     patchUser,
     deleteUser,
-    getTodos
+    getTodos,
+    getTodo,
+    updateTodo
 } = require("../controllers/userController");
 
 const router = express.Router();
@@ -25,5 +27,9 @@ router.patch("/:id", patchUser);
 router.delete("/:id", deleteUser);
 
 router.get("/:id/todos", getTodos);
+
+router.get("/:userId/todos/:todoId", getTodo);
+
+router.put("/:userId/todos/:todoId", updateTodo);
 
 module.exports = router;
