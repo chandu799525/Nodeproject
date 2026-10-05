@@ -1,24 +1,32 @@
 const User = require("../models/User");
+const bcrypt = require("bcrypt");
 
 const addUser = async (req, res) => {
-    try {
-        const { name, password } = req.body;
+    const { name, password } = req.body;
 
-        const user = await User.create({
-            name,
-            password,
-            todos: []
-        });
+    const existingUser = await User.findOne({ name });
 
-        res.status(201).json({
-            message: "user added",
-            user
-        })
-    } catch (error) {
-        res.status(505).json({
-            message: error.message
+    if (existingUser) {
+        return res.status(400).json({
+            message: "User already exists"
         });
-    }   
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+        name,
+        password: hashedPassword,
+        todos: []
+    });
+
+    res.status(201).json({
+        message: "user added successfully",
+        user: {
+            id: user._id,
+            name: user.name,
+        }
+    });
 };
 
 const getUser = async (req, res) => {
