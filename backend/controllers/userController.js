@@ -15,8 +15,8 @@ const addUser = async (req, res) => {
             user
         })
     } catch (error) {
-        res.status(500).json({
-            message: error.mesage
+        res.status(505).json({
+            message: error.message
         });
     }   
 };
@@ -136,6 +136,39 @@ const patchUser = async (req, res) => {
     }
 };
 
+const addTodo = async (req, res) => {
+    try {
+        const { title } = req.body;
+
+        const user = await User.findById(req.params.userId);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        user.todos.push({
+            title,
+            completed: false
+        });
+
+        await user.save();
+
+        const todo = user.todos[user.todos.length - 1];
+
+        res.status(201).json({
+            message: "Todo added",
+            todo
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
+
 const getTodos = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -218,6 +251,80 @@ const updateTodo = async (req, res) => {
     }
 }
 
+const patchTodo = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        const todo = user.todos.id(req.params.todoId);
+
+        if (!todo) {
+            return res.status(404).json({
+                message: "Todo not found"
+            });
+        }
+
+        if (req.body.title !== undefined) {
+            todo.title = req.body.title;
+        }
+
+        if (req.body.completed !== undefined) {
+            todo.completed = req.body.completed;
+        }
+
+        await user.save();
+
+        res.status(200).json({
+            message: "Todo updated",
+            todo
+        });
+
+    } catch (error) {
+        res.status(400).json({
+            message: "Invalid ID"
+        });
+    }
+};
+
+const deleteTodo = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        const todo = user.todos.id(req.params.todoId);
+
+        if (!todo) {
+            return res.status(404).json({
+                message: "Todo not found"
+            });
+        }
+
+        todo.deleteOne();
+
+        await user.save();
+
+        res.status(200).json({
+            message: "Todo deleted",
+            todo
+        });
+
+    } catch (error) {
+        res.status(400).json({
+            message: "Invalid ID"
+        });
+    }
+};
+
 module.exports = {
     addUser,
     getUser,
@@ -227,5 +334,8 @@ module.exports = {
     deleteUser,
     getTodos,
     getTodo,
-    updateTodo
+    updateTodo,
+    patchTodo,
+    deleteTodo,
+    addTodo
 };

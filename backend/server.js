@@ -3,12 +3,15 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 
 const userRoutes = require("./routes/userRoutes");
+const errorMiddleware = require("./middleware/errorMiddleware");
 
 const app = express();
 
 app.use(express.json());
 
 app.use("/users", userRoutes);
+
+app.use(errorMiddleware);
 
 mongoose
     .connect(process.env.MONGO_URI)
