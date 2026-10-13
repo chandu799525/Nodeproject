@@ -31,7 +31,7 @@ const addUser = async (req, res) => {
 
 const getUser = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
+        const user = await User.findById(req.params.id).select("-password");
 
         if (!user) {
             return res.status(404).json({
@@ -106,7 +106,7 @@ const deleteUser = async (req, res) => {
 
 const getUsers = async (req, res) => {
     try {
-        const users = await User.find();
+        const users = await User.find().select("-password");
 
         res.status(200).json(users);
     } catch (error) {
@@ -333,6 +333,52 @@ const deleteTodo = async (req, res) => {
     }
 };
 
+const getMyTodos = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.userId).select("todos");
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        res.status(200).json({
+            todos: user.todos
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const addMyTodo = async (req, res, next) => {
+    try {
+        const { title } = req.body;
+
+        const user = await User.findById(req.user.userId);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        user.todos.push({ title });
+
+        await user.save();
+
+        const newTodo = user.todos[user.todos.length - 1];
+
+        res.status(201).json({
+            message: "Todo added successfully",
+            todo: newTodo
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     addUser,
     getUser,
@@ -345,5 +391,7 @@ module.exports = {
     updateTodo,
     patchTodo,
     deleteTodo,
-    addTodo
+    addTodo,
+    getMyTodos,
+    addMyTodo
 };

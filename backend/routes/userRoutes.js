@@ -13,33 +13,41 @@ const {
     updateTodo,
     patchTodo,
     deleteTodo,
-    addTodo
+    addTodo,
+    getMyTodos,
+    addMyTodo
 } = require("../controllers/userController");
+
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
 router.post("/", asyncHandler(addUser));
 
-router.get("/", asyncHandler(getUsers));
+router.get("/", authMiddleware, asyncHandler(getUsers));
 
-router.get("/:id", asyncHandler(getUser));
+router.get("/me/todos", authMiddleware, getMyTodos);
 
-router.put("/:id", asyncHandler(updateUser));
+router.post("/me/todos", authMiddleware, addMyTodo);
 
-router.patch("/:id", asyncHandler(patchUser));
+router.get("/:id", authMiddleware, asyncHandler(getUser));
 
-router.delete("/:id", asyncHandler(deleteUser));
+router.put("/:id", authMiddleware, asyncHandler(updateUser));
 
-router.get("/:id/todos", asyncHandler(getTodos));
+router.patch("/:id", authMiddleware, asyncHandler(patchUser));
 
-router.get("/:userId/todos/:todoId", asyncHandler(getTodo));
+router.delete("/:id", authMiddleware, asyncHandler(deleteUser));
 
-router.put("/:userId/todos/:todoId", asyncHandler(updateTodo));
+router.get("/:id/todos", authMiddleware, asyncHandler(getTodos));
 
-router.patch("/:userId/todos/:todoId", asyncHandler(patchTodo));
+router.get("/:userId/todos/:todoId", authMiddleware, asyncHandler(getTodo));
 
-router.delete("/:userId/todos/:todoId", asyncHandler(deleteTodo));
+router.put("/:userId/todos/:todoId", authMiddleware, asyncHandler(updateTodo));
 
-router.post("/:userId/todos", asyncHandler(addTodo));
+router.patch("/:userId/todos/:todoId", authMiddleware, asyncHandler(patchTodo));
+
+router.delete("/:userId/todos/:todoId", authMiddleware, asyncHandler(deleteTodo));
+
+router.post("/:userId/todos", authMiddleware, asyncHandler(addTodo));
 
 module.exports = router;
